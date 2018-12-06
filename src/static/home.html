@@ -1,0 +1,209 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Matrixpad</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+            position: inherit;
+            top: 0;
+            left: 0;
+        }
+
+        #meio {
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            position: absolute;
+            color: #fff;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #meio input {
+            width: 100%;
+            border: 1px solid #0F0;
+            padding: 9px;
+            margin-top: 7px;
+            background-color: rgba(0, 0, 0, 0.39);
+            color: #0f0;
+            outline: none;
+        }
+
+        .logo {
+            font-size: 45px;
+        }
+
+        #footer {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            color: white;
+            margin-bottom: 5px;
+            margin-right: 5px;
+        }
+
+        #mono {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            margin-left: 5px;
+            margin-bottom: 5px;
+            border: 1px solid black;
+            background: white;
+            -webkit-transition: opacity 1s ease-in-out;
+            -moz-transition: opacity 1s ease-in-out;
+            -ms-transition: opacity 1s ease-in-out;
+            -o-transition: opacity 1s ease-in-out;
+            transition: opacity 1s ease-in-out;
+            opacity: 0.39;
+            padding: 5px;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #mono:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="meio">
+        <div class="logo">Matrixpad
+            <span style="font-size: 11px">v1.2.1</span>
+        </div>
+        <form onsubmit="irPara(event)">
+            <input type="text" id="input" spellcheck="false" autocomplete="false" />
+        </form>
+    </div>
+    <canvas id="c">Canvas is not supported in your browser.</canvas>
+    <button id="mono" onclick="mono()">Monocromatico</button>
+    <div id="footer" style="font-size: 10px">Desenvolvido por Pedro Reis Velloso dos Santos</div>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        $(document).ready(function () {
+            var x = document.cookie;
+            if (getCookie('mono') === 'true') {
+                $('#mono').html('Matrix')
+            }
+        });
+
+        function mono() {
+            if (getCookie('mono') == 'false' || getCookie('mono') === undefined) {
+                document.cookie = "mono=true";
+            } else {
+                document.cookie = "mono=false";
+            }
+        }
+
+        function irPara(event) {
+            event.preventDefault();
+            let path = event.target[0].value
+
+            if (path.slice(-1) === "/") {
+                path = path.substring(0, path.length - 1)
+            }
+
+            window.location = path.toLowerCase();
+        }
+
+        var c = document.getElementById("c");
+        var ctx = c.getContext("2d");
+
+        // Faz o <canvas> ficar em tela cheia
+        c.height = window.innerHeight;
+        c.width = window.innerWidth;
+
+        // Caracteres chineses do matrix
+        var chinese = "田由甲申甴电甶男甸甹町画甼甽甾甿畀畁畂畃畄畅畆畇畈畉畊畋界畍畎畏畐畑";
+        // Converte a string em um array de caracteres únicos
+        chinese = chinese.split("");
+
+        var font_size = 10;
+        var columns = c.width / font_size; // Número de colunas do efeito (largura do <canvas> / tamanho da fonte)
+        // Um array cai - por coluna
+        var drops = [];
+        // A variável x representa a coordenada X
+        // Coordenada da queda 1=y (repete-se em cada inicialização)
+        for (var x = 0; x < columns; x++)
+            drops[x] = 1;
+
+        // Escrevendo os caracteres
+        function draw() {
+            // Fundo preto no <canvas>
+            // Fundo translucido para mostrar o efeito dos caracteres
+            var fundo = "rgba(0, 0, 0, 0.05)"
+            var texto = "#0F0"
+
+            if (getCookie('mono') == 'true') {
+                fundo = "rgba(255, 255, 255, 0.05)"
+                var texto = "#000"
+                document.getElementById('meio').style.color = "black"
+                document.getElementById('footer').style.color = "black"
+                document.getElementById('input').style.border = "1px solid black"
+                document.getElementById('input').style.color = "white"
+                document.getElementById('mono').style.border = "1px solid #0f0"
+                document.getElementById('mono').style.background = "black"
+                document.getElementById('mono').style.color = "#0f0"
+                $('#mono').html('Matrix')
+            } else {
+                document.getElementById('meio').style.color = "white"
+                document.getElementById('footer').style.color = "white"
+                document.getElementById('input').style.border = "1px solid " + texto
+                document.getElementById('input').style.color = "#0f0"
+                document.getElementById('mono').style.border = "1px solid black"
+                document.getElementById('mono').style.background = "white"
+                document.getElementById('mono').style.color = "black"
+                $('#mono').html('Monocromático')
+            }
+
+            ctx.fillStyle = fundo;
+            ctx.fillRect(0, 0, c.width, c.height);
+
+            ctx.fillStyle = texto; // Texto verde
+            ctx.font = font_size + "px arial";
+            // Loop entre as quedas de caracteres
+            for (var i = 0; i < drops.length; i++) {
+                // Escreve um caractere chinês aleatório
+                var text = chinese[Math.floor(Math.random() * chinese.length)];
+                // x = i*tamanho_da_fonte || y = valor das quedas[i]*tamanho_da_fonte
+                ctx.fillText(text, i * font_size, drops[i] * font_size);
+
+                // Manda a queda de volta ao topo depois de atravessar toda a tela
+                // Randomizando o reset para as quedas se espalharem verticalmente na tela
+                if (drops[i] * font_size > c.height && Math.random() > 0.975)
+                    drops[i] = 0;
+
+                // Incrementando a coordenada Y
+                drops[i]++;
+            }
+        }
+
+        setInterval(draw, 33);
+    </script>
+</body>
+
+</html>

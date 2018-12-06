@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Matrixpad</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+            position: inherit;
+            top: 0;
+            left: 0;
+        }
+
+        textarea {
+            -webkit-appearance: textarea;
+            -webkit-rtl-ordering: logical;
+            flex-direction: column;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            height: 100%;
+            width: 98%;
+            padding: 15px;
+            font-size: 17px;
+            color: rgb(0, 255, 65);
+            background-color: black;
+            margin-top: 8px;
+        }
+
+        textarea::selection {
+            background-color: rgb(0, 255, 65);
+            color: #000;
+        }
+
+        textarea::-moz-selection {
+            background-color: rgb(0, 255, 65);
+            color: #000;
+        }
+
+        #menu {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #FFF;
+            color: black;
+            margin-bottom: 5px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <textarea id="txt" onkeydown="atualiza(event)" spellcheck="false" autofocus="true"></textarea>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+
+        function getCookie(cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+
+        $(document).ready(function () {
+            var x = document.cookie;
+            if (getCookie('mono') === 'true') {
+                document.getElementById('txt').style.background = "white"
+                document.getElementById('txt').style.color = "black"
+            }
+        });
+
+        let socket = io()
+        let path = window.location.pathname
+
+        if (path.slice(-1) === "/") {
+            path = path.substring(0, path.length - 1)
+            window.location = path.toLowerCase();
+        }
+
+        socket.emit('join', path)
+
+        socket.on('entrou', (msg) => {
+            console.log(msg);
+            $("textarea#txt").val(msg.msg);
+        })
+
+        socket.on('text', (msg) => {
+            $("textarea#txt").val(msg);
+        })
+
+        atualiza = (e) => {
+            let send = false
+            setInterval(() => {
+                if (!send) {
+                    socket.emit('text', { msg: jQuery("textarea#txt").val(), room: path })
+                    send = true
+                }
+            }, 2)
+        }
+
+        setInterval(() => {
+            socket.emit('save', { msg: jQuery("textarea#txt").val(), room: path })
+        }, 2500)
+
+    </script>
+</body>
+
+</html>

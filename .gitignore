@@ -1,0 +1,11 @@
+# dependencias
+node_modules
+
+# dist build
+dist
+
+# env variables
+.env
+
+# log errors
+yarn-error.log

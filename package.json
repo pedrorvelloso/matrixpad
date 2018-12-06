@@ -1,0 +1,28 @@
+{
+  "name": "socket",
+  "version": "1.0.0",
+  "description": "Test with socket.io",
+  "main": "index.js",
+  "scripts": {
+    "start": "NODE_ENV=production node .",
+    "dev": "./node_modules/.bin/nodemon . --exec babel-node",
+    "clean": "rm -rf dist && mkdir dist",
+    "build": "yarn clean && ./node_modules/.bin/babel src --out-dir dist"
+  },
+  "author": "Pedro Reis Velloso dos Santos",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^6.2.0",
+    "express": "^4.16.3",
+    "mongoose": "^5.2.3",
+    "socket.io": "^2.1.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.0",
+    "@babel/core": "^7.2.0",
+    "@babel/node": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "eslint": "^5.9.0",
+    "nodemon": "^1.18.7"
+  }
+}
